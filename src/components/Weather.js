@@ -4,31 +4,35 @@ import Loader from "../loader/Loader";
 import Clock from "react-live-clock";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {CurrentWeather} from "./CurrentWeather";
+import {HourlyWeather} from "./HourlyWeather"
+import {Form} from "./Form"
+// import {Forecast} from "./Forecast"
 
 function Weather() {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  let [currentWeather, setWeather] = useState([]);
-  // const [cityWeather, setCityWeather] = useState([]);
-  const [hourly, setHourly] = useState([]);
-  // const [forecast, setForecast] = useState({});
+  const [currentWeather, setWeather] = useState({});
+  const [hourly, setHourly] = useState({});
+  const [forecast, setForecast] = useState({});
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
-      const currentWeather = weatherApi.byCoord(
+      weatherApi.byCoord(
         pos.coords.latitude,
         pos.coords.longitude
-      )
-      const hourlyWeather = weatherApi.getHourly(
+      ).then(data => setWeather(data))
+      weatherApi.getHourly(
+           pos.coords.latitude,
+          pos.coords.longitude
+         ).then(data => setHourly(data))
+      weatherApi.getForecast(
         pos.coords.latitude,
-        pos.coords.longitude
-      );
-      setWeather(currentWeather);
-      setHourly(hourlyWeather);
-      setIsLoaded(true);
+       pos.coords.longitude
+      ).then(data => setForecast(data))
+   setIsLoaded(true)
     });
   }, []);
-
+  
   if (error) {
     setError(error);
     return <div>Ошибка: {error.message}</div>;
@@ -39,19 +43,22 @@ function Weather() {
       </div>
     );
   } else {
-    console.log('Data Api:', currentWeather)
+
     return (
-      <div className="container">
         <div className="card text-center">
-          <div className="card-header">Featured</div>
-          <CurrentWeather currentWeather={currentWeather}/>
+          <div className="card-header">
+          <Form />
+          </div>
+          <CurrentWeather data={currentWeather}/>
+          <div className="text">
+          <HourlyWeather data={hourly} forecast={forecast}/>
+          </div>
           <div className="card-footer text-muted">
             <Clock format={"HH:mm:ss"} ticking={true} />
             &nbsp;&nbsp;
             <Clock format={"DD MMMM YYYY"} date={""} />
           </div>
         </div>
-      </div>
     );
   }
 }

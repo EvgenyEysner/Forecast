@@ -4,22 +4,27 @@ const instance = axios.create({
     baseURL:"https://api.openweathermap.org/data/2.5/"
 })
 
-const apiKey = '59bff2a684ff8d5bc4be2b1f78f87e7a'
+const apiKey = '73086d8cdcc1c284c6c173a777e9a180'
 
 export const weatherApi = {
     byCoord(lat,lon){
         return instance.get(`weather?lat=${lat}&lon=${lon}&units=metric&lang=ru&appid=${apiKey}`
         ).then((res) => res.data);
     },
+
+    byCityname(city){
+        return instance.get(`weather?q=${city}&units=metric&lang=ru&appid=${apiKey}`
+        ).then((res) => res.data);
+    },
+    
     
     getHourly(lat,lon){
         return instance.get(`onecall?lat=${lat}&lon=${lon}&units=metric&lang=ru&exlude=hourly&appid=${apiKey}`
         ).then((res) => res.data);
     },
 
-    forWeek(city){
-        return instance.get(`forecast?q=${city}&lang=ru&units=metric&appid=${apiKey}`
-        ).then(res => res.data.list)
-        
-    }
+    getForecast(lat,lon){
+        return instance.get(`onecall?lat=${lat}&lon=${lon}&units=metric&lang=ru&exlude=daily&appid=${apiKey}`
+        ).then((res) => res.data);
+    },
 }
